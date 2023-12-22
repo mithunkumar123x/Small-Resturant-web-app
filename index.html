@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resturant Order Management</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+</head>
+
+<body>
+    <div id="header">
+        <h1>Resturant Order Management</h1>
+    </div>
+
+    <form action="" id="form">
+        <label for="price">Choose Price: </label>
+        <input type="text" id="price" placeholder="Enter price" required>
+      
+        <label for="dish">Choose Dish: </label>
+        <input type="text" id="dish" placeholder="Enter dish name" required>
+      
+        <label for="table">Choose Table: </label>
+        <select name="table" id="table">
+          <option value="Table 1">Table 1</option>
+          <option value="Table 2">Table 2</option>
+          <option value="Table 3">Table 3</option>
+        </select>
+      
+        <button class="btn">Add to Bill</button>
+      </form>
+      
+
+      <h2>Table 1 Orders</h2>
+       <ul id="table1-orders"></ul>
+
+      <h2>Table 2 Orders</h2>
+        <ul id="table2-orders"></ul>
+
+       <h2>Table 3 Orders</h2>
+         <ul id ="table3-orders"></ul> 
+
+        
+    <script src="script.js"></script>
+</body>
+
+</html>
