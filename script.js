@@ -52,8 +52,8 @@ document.addEventListener('DOMContentLoaded', function() {
   }
 
   function deleteOrder(orderId) {
-    const orderToRemove = document.getElementById(orderId);
-    orderToRemove.remove();
+    const CancelOrder = document.getElementById(orderId);
+    CancelOrder.remove();
 
     axios.delete(`${API_URL}/${orderId}`)
       .catch(function(err) {
