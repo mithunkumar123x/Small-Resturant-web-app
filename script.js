@@ -1,103 +1,129 @@
-const API_URL = "https://crudcrud.com/api/11cda7430d87426cb8de54ae98c5948c/orders";
+const API_URL = "https://crudcrud.com/api/f623b6e9fdc84bacbca626b4aed59cc7/orders";
 
-document.addEventListener('DOMContentLoaded', function() {
-  const form = document.getElementById('form');
-  const table1Orders = document.getElementById('table1-orders');
-  const table2Orders = document.getElementById('table2-orders');
-  const table3Orders = document.getElementById('table3-orders');
-
-  form.addEventListener('submit', async function(e) {
-    e.preventDefault();
-
-    const price = document.getElementById('price').value;
-    const dish = document.getElementById('dish').value;
-    const table = document.getElementById('table').value;
-
-    const listItem = document.createElement('li');
-    listItem.textContent = `Price: ${price}, Dish: ${dish}`;
-
-    if (table === 'Table 1') {
-      table1Orders.appendChild(listItem);
-    } else if (table === 'Table 2') {
-      table2Orders.appendChild(listItem);
-    } else if (table === 'Table 3') {
-      table3Orders.appendChild(listItem);
-    }
-
-    const butter = {
-      price: price,
-      dish: dish,
-      table: table
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('form');
+    const tables = {
+        'Table 1': { element: document.getElementById('t1'), orders: [] },
+        'Table 2': { element: document.getElementById('t2'), orders: [] },
+        'Table 3': { element: document.getElementById('t3'), orders: [] },
     };
 
-    try {
-      const response = await axios.post(API_URL, butter);
-      console.log(response.data);
-    } catch (error) {
-      console.log(error);
-    }
+    form.addEventListener('submit', async function (e) {
+        e.preventDefault();
 
-    form.reset();
-  });
+        const price = document.getElementById('price').value;
+        const dish = document.getElementById('dish').value;
+        const table = document.getElementById('table').value;
 
-  async function fetchOrdersFromAPI() {
-    try {
-      const response = await axios.get(API_URL);
-      response.data.forEach(function(order) {
-        displayOrderOnScreen(order);
-      });
-    } catch (error) {
-      console.log(error);
-    }
-  }
+        if (tables[table].orders.length >= maxOrdersPerTable) {
+            alert(`Table ${table} is full. Cannot add more orders.`);
+            return;
+        }
 
-  function deleteOrder(orderId) {
-    const CancelOrder = document.getElementById(orderId);
-    CancelOrder.remove();
+        const orderData = {
+            price: price,
+            dish: dish,
+            table: table
+        };
 
-    axios.delete(`${API_URL}/${orderId}`)
-      .catch(function(err) {
-        console.log(err);
-      });
-  }
+        try {
+            const response = await axios.post(API_URL, orderData);
+            const orderId = response.data._id;
+            const order = { _id: orderId, price, dish, table };
+            tables[table].orders.push(order);
 
-  async function updateOrderInAPI(orderId) {
-    try {
-      const response = await axios.put(`${API_URL}/${orderId}`);
-      console.log(response.data);
-      location.reload();
-    } catch (error) {
-      console.log(error);
-    }
-  }
+            displayOrderOnScreen(order, tables[table]);
 
-  function displayOrderOnScreen(order) {
-    const listItem = document.createElement('li');
-    listItem.textContent = `Price: ${order.price}, Dish: ${order.dish}`;
+            alert('Order placed soon!!');
+        } catch (error) {
+            console.log(error);
+            alert('Ooops , try again please.');
+        }
 
-    const deleteButton = document.createElement('button');
-    deleteButton.textContent = 'Delete';
-    deleteButton.addEventListener('click', function() {
-      deleteOrder(order._id);
+        form.reset();
     });
 
-    const updateButton = document.createElement('button');
-    updateButton.textContent = 'Edit';
-    updateButton.addEventListener('click', function() {
-      updateOrderInAPI(order._id);
-    });
-
-    listItem.appendChild(deleteButton);
-    listItem.appendChild(updateButton);
-
-    if (order.table === 'Table 1') {
-      table1Orders.appendChild(listItem);
-    } else if (order.table === 'Table 2') {
-      table2Orders.appendChild(listItem);
-    } else if (order.table === 'Table 3') {
-      table3Orders.appendChild(listItem);
+    async function fetchOrdersFromAPI() {
+        try {
+            const response = awaita.axios.get(API_URL);
+            response.data.forEach(order => {
+                const table = tables[order.table];
+                table.orders.push(order);
+                displayOrderOnScreen(order, table);
+            });
+        } catch (error) {
+            console.log(error);
+        }
     }
-  }
 
-  fetchOrdersFromAPI();
+    async function deleteOrder(orderId, table) {
+        try {
+            await axios.delete(`${API_URL}/${orderId}`);
+            const orderIndex = table.orders.findIndex(order => order._id === orderId);
+            if (orderIndex !== -1) {
+                table.orders.splice(orderIndex, 1);
+            }
+
+            document.getElementById(orderId).remove();
+        } catch (error) {
+            console.log(error);
+            alert('Please try again.');
+        }
+    }
+
+    async function updateOrderInAPI(orderId, newPrice, newDish, table) {
+        try {
+            const response = await axios.put(`${API_URL}/${orderId}`, {
+                price: newPrice,
+                dish: newDish
+            });
+            console.log(response.data);
+
+            const orderIndex = table.orders.findIndex(order => order._id === orderId);
+            if (orderIndex !== -1) {
+                const updatedOrder = {
+                    _id: orderId,
+                    price: newPrice,
+                    dish: newDish,
+                    table: table.orders[orderIndex].table
+                };
+                table.orders[orderIndex] = updatedOrder;
+
+                const listItem = document.getElementById(orderId);
+                listItem.textContent = `Price: ${newPrice}, Dish: ${newDish}`;
+
+                alert('Order updated successfully!');
+            }
+        } catch (error) {
+            console.log(error);
+            alert('Error updating order. Please try again.');
+        }
+    }
+
+    function displayOrderOnScreen(order, table) {
+        const listItem = document.createElement('li');
+        listItem.id = order._id;
+        listItem.textContent = `Price: ${order.price}, Dish: ${order.dish}`;
+
+        const deleteButton = document.createElement('button');
+        deleteButton.textContent = 'Delete';
+        deleteButton.addEventListener('click', function () {
+            deleteOrder(order._id, table);
+        });
+
+        const updateButton = document.createElement('button');
+        updateButton.textContent = 'Edit';
+        updateButton.addEventListener('click', function () {
+            const newPrice = prompt('Enter new price:', order.price);
+            const newDish = prompt('Enter new dish:', order.dish);
+            updateOrderInAPI(order._id, newPrice, newDish, table);
+         });
+ 
+        listItem.appendChild(deleteButton);
+        listItem.appendChild(updateButton);
+
+        table.element.appendChild(listItem);
+    }
+
+    fetchOrdersFromAPI();
 });
