@@ -1,4 +1,4 @@
-const API_URL = "https://crudcrud.com/api/f623b6e9fdc84bacbca626b4aed59cc7/orders";
+const API_URL = "https://crudcrud.com/api/c4c80cfce15b4e4996402d251b7a58b2/orders";
 
 document.addEventListener('DOMContentLoaded', function () {
     const form = document.getElementById('form');
@@ -7,6 +7,9 @@ document.addEventListener('DOMContentLoaded', function () {
         'Table 2': { element: document.getElementById('t2'), orders: [] },
         'Table 3': { element: document.getElementById('t3'), orders: [] },
     };
+
+
+    const maxOrdersPerTable = 5;
 
     form.addEventListener('submit', async function (e) {
         e.preventDefault();
@@ -45,7 +48,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     async function fetchOrdersFromAPI() {
         try {
-            const response = awaita.axios.get(API_URL);
+            const response = await axios.get(API_URL);
             response.data.forEach(order => {
                 const table = tables[order.table];
                 table.orders.push(order);
