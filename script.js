@@ -1,5 +1,5 @@
 
-const API_URL = "https://crudcrud.com/api/1138d1800c5d43ddb7c0ae84387cc59e/orders";
+const API_URL = "https://crudcrud.com/api/1e44d7eba4b44bab84a857c3317777b7/orders";
 const tables = {
     'Table 1': { element: document.getElementById('table1-orders'), orders: [] },
     'Table 2': { element: document.getElementById('table2-orders'), orders: [] },
@@ -77,7 +77,7 @@ async function deleteOrder(orderId, table) {
       document.getElementById(orderId).remove();
   } catch (error) {
       console.log(error);
-      alert('Please try again.');
+      alert('Something went wrong.');
   }
 }
 
@@ -100,14 +100,49 @@ function displayOrderOnScreen(order, table) {
     updateButton.addEventListener('click', function () {
         const newPrice = prompt('Enter new price:', order.price);
         const newDish = prompt('Enter new dish:', order.dish);
-        // Implement the update functionality here
 
+        if (newPrice !== null && newDish !== null) {
+            const updatedOrder = {
+                _id: order._id,
+                price: newPrice,
+                dish: newDish,
+                table: order.table
+            };
 
+        
+            updateOrder(updatedOrder, table, listItem);
+        }
     });
 
     listItem.appendChild(deleteButton);
     listItem.appendChild(updateButton);
 
     table.element.appendChild(listItem);
+}
+
+async function updateOrder(updatedOrder, table, listItem) {
+    
+    try {
+        await axios.patch(`${API_URL}/${updatedOrder._id}`, updatedOrder);
+
+        const orderIndex = table.orders.findIndex(order => order._id === updatedOrder._id);
+        if (orderIndex !== -1) {
+            table.orders[orderIndex] = updatedOrder;
+        }
+
+        // Create a new structure for the order text content
+        const orderText = document.createElement('span');
+        orderText.textContent = `Price: ${updatedOrder.price}, Dish: ${updatedOrder.dish}`;
+
+        // Clear existing content and append the new structure
+        listItem.innerHTML = '';
+        listItem.appendChild(orderText);
+
+        alert('Order updated successfully!');
+    } catch (error) {
+        console.log(error);
+        alert('Something went wrong while updating the order.');
+    }
+
 }
 
